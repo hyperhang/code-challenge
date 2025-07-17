@@ -11,6 +11,9 @@ src/
 ├── types/
 │   └── index.ts
 └── app.ts
+├── Dockerfile
+├── package.json
+├── tsconfig.json
 
 
 # How to run
@@ -19,8 +22,8 @@ A RESTful API for managing game resources built with Express, TypeScript, and SQ
 
 ## Prerequisites
 
-- Node.js v14+
-- npm v6+
+- Node.js v18.20.8
+- npm v10.8.2
 
 ## Installation
 

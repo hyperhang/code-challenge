@@ -86,6 +86,8 @@ export class ResourceController {
       const resourceRepository = getRepository(Resource);
       const id = parseInt(req.params.id);
       const updateData: ResourceUpdateDto = req.body;
+
+      // TODO: security check: filter to get only updatable fields from updateData
       
       const resource = await resourceRepository.findOne(id);
       

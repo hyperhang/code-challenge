@@ -4,6 +4,12 @@ import { ResourceController } from '../controllers/resourceController';
 const router = Router();
 const resourceController = new ResourceController();
 
+
+// TODO: 
+// add rate limit
+// add authen, author 
+// for each API below
+
 // Create a new resource
 router.post('/', resourceController.create.bind(resourceController));
 
