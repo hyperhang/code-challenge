@@ -1,16 +1,16 @@
 {
   "type": "sqlite",
-  "database": "game_resources.sqlite",
+  "database": "./data/game_resources.sqlite",
   "synchronize": true,
-  "logging": false,
+  "logging": true,
   "entities": [
-    "src/models/**/*.ts"
+    "src/models/*.ts"
   ],
   "migrations": [
-    "src/migrations/**/*.ts"
+    "src/migrations/*.ts"
   ],
   "subscribers": [
-    "src/subscribers/**/*.ts"
+    "src/subscribers/*.ts"
   ],
   "cli": {
     "entitiesDir": "src/models",

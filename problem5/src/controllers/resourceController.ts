@@ -1,65 +1,80 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
+import { getRepository, Like } from 'typeorm';
 import { Resource } from '../models/Resource';
 import { ResourceCreateDto, ResourceUpdateDto, ResourceFilters } from '../types';
 
 export class ResourceController {
   // Create resource
-  async create(req: Request, res: Response): Promise<Response> {
-    try {
-      const resourceRepository = getRepository(Resource);
-      const resourceData: ResourceCreateDto = req.body;
-      
-      // Validate required fields
-      if (!resourceData.name || !resourceData.description) {
-        return res.status(400).json({ error: 'Name and description are required' });
-      }
-      
-      const newResource = resourceRepository.create(resourceData);
-      const result = await resourceRepository.save(newResource);
-      
-      return res.status(201).json(result);
-    } catch (error) {
-      console.error('Error creating resource:', error);
-      return res.status(500).json({ error: 'Failed to create resource' });
+async create(req: Request, res: Response): Promise<Response> {
+  try {
+    const resourceRepository = getRepository(Resource);
+    const resourceData = req.body;
+    
+    // Validate required fields
+    if (!resourceData.name || !resourceData.description) {
+      return res.status(400).json({ error: 'Name and description are required' });
     }
+    
+    console.log('Creating new resource:', resourceData);
+    delete resourceData.id; // remove resource id in the request (here id is always incrementally auto-created)
+    const newResource = resourceRepository.create(
+      resourceData
+    )
+    // Save the resource
+    const result = await resourceRepository.save(newResource);
+    
+    console.log('Resource created:', newResource);
+    
+    // Count resources after creation
+    const count = await resourceRepository.count();
+    console.log(`Total resources in database: ${count}`);
+    
+    return res.status(201).json(result);
+  } catch (error) {
+    console.error('Error creating resource:', error);
+    return res.status(500).json({ 
+      error: 'Failed to create resource', 
+      details: (error as any ).message,
+      stack: (error as any ).stack
+    });
   }
-  
+}
   // List resources with filters
-  async findAll(req: Request, res: Response): Promise<Response> {
-    try {
-      const resourceRepository = getRepository(Resource);
-      const filters: ResourceFilters = {};
-      
-      // Extract filters from query parameters
-      if (req.query.name) filters.name = req.query.name as string;
-      if (req.query.type) filters.type = req.query.type as string;
-      if (req.query.isActive !== undefined) {
-        filters.isActive = req.query.isActive === 'true';
-      }
-      
-      // Build the query
-      let query = resourceRepository.createQueryBuilder('resource');
-      
-      if (filters.name) {
-        query = query.andWhere('resource.name LIKE :name', { name: `%\${filters.name}%` });
-      }
-      
-      if (filters.type) {
-        query = query.andWhere('resource.type = :type', { type: filters.type });
-      }
-      
-      if (filters.isActive !== undefined) {
-        query = query.andWhere('resource.isActive = :isActive', { isActive: filters.isActive });
-      }
-      
-      const resources = await query.getMany();
-      return res.json(resources);
-    } catch (error) {
-      console.error('Error fetching resources:', error);
-      return res.status(500).json({ error: 'Failed to fetch resources' });
+async findAll(req: Request, res: Response): Promise<Response> {
+  try {
+    const resourceRepository = getRepository(Resource);
+    
+    // Build filter object based on query parameters
+    const filters: any = {};
+    
+    // Extract filters from query parameters
+    if (req.query.name) {
+      filters.name = Like(`%${req.query.name as string}%`); // Using Like operator for partial matching
     }
+    
+    if (req.query.type) {
+      filters.type = req.query.type as string;
+    }
+    
+    if (req.query.isActive !== undefined) {
+      filters.isActive = req.query.isActive === 'true';
+    }
+    
+    console.log('Fetching resources with filters:', filters);
+    
+    // Use find method instead of query builder for simplicity
+    const resources = Object.keys(filters).length > 0 
+      ? await resourceRepository.find({ where: filters })
+      : await resourceRepository.find();
+    
+    console.log(`Found ${resources.length} resources`);
+    
+    return res.json(resources);
+  } catch (error) {
+    console.error('Error fetching resources:', error);
+    return res.status(500).json({ error: 'Failed to fetch resources' });
   }
+}
   
   // Get resource by ID
   async findOne(req: Request, res: Response): Promise<Response> {
@@ -85,17 +100,27 @@ export class ResourceController {
     try {
       const resourceRepository = getRepository(Resource);
       const id = parseInt(req.params.id);
-      const updateData: ResourceUpdateDto = req.body;
+      const requestData = req.body;
 
-      // TODO: security check: filter to get only updatable fields from updateData
+      const updateData: ResourceUpdateDto = {
+        name: requestData.name,
+        description: requestData.description,
+        type: requestData.type,
+        isActive: requestData.isActive
+      };
       
+      // Remove undefined values (optional)
+      const filteredUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, v]) => v !== undefined)
+      );
+
       const resource = await resourceRepository.findOne(id);
       
       if (!resource) {
         return res.status(404).json({ error: 'Resource not found' });
       }
       
-      await resourceRepository.update(id, updateData);
+      await resourceRepository.update(id, filteredUpdateData);
       const updatedResource = await resourceRepository.findOne(id);
       
       return res.json(updatedResource);
