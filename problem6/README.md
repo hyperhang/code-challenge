@@ -85,7 +85,7 @@ GET /api/v1/scores/leaderboard
 
 **Request Headers**:
 - `Authorization`: Bearer token
-
+- `Content-Type`: application/json
 **Response**:
 ```json
 {
@@ -105,6 +105,11 @@ GET /api/v1/scores/leaderboard
 ```
 GET /api/v1/scores/leaderboard/live
 ```
+**Request Headers**:
+- `Content-Type`: text/event-stream
+- `Cache-Control`: no-cache
+- `Connection`: keep-alive
+
 Establishes SSE connection for real-time updates.
 
 ## Authentication & Security
@@ -210,7 +215,7 @@ Error responses should follow consistent format:
 
 1. **Scalability**:
    - Horizontally scale API servers
-   - Consider AWS managed services for high available solution
+   - Consider AWS managed services for high available solution (auto backup DB, auto scaling DB)
 
 2. **Monitoring**:
    - Track API latency and error rates
@@ -233,3 +238,22 @@ Error responses should follow consistent format:
 3. **Performance Optimization**:
    - Consider batch processing for high-frequency score updates
    - Implement background job for recalculating ranks periodically
+
+4. **Resilience Engineering**:
+  - Circuit breakers: Handling temporary service failures
+<!--  
+    ***potential issue***
+```
+Redis becomes temporarily slow due to high load 
+-> Application threads get blocked waiting for responses 
+-> New incoming requests can't be processed as threads are exhausted
+-> The entire system becomes unresponsive
+``` -->
+
+
+  - Reconnection strategy: implement clients handle SSE connection drops
+
+5. **DevOps Considerations**:
+  - CI/CD pipeline (dev -> staging -> prod)
+  - Infrastructure as Code (IaC) for reproducible deployments
+  - Blue/Green deployment strategy for zero-downtime updates   
