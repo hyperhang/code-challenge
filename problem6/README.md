@@ -240,7 +240,8 @@ Error responses should follow consistent format:
    - Implement background job for recalculating ranks periodically
 
 4. **Resilience Engineering**:
-  - Circuit breakers: Handling temporary service failures
+   - Circuit breakers: Handling temporary service failures
+   - Reconnection strategy: implement clients handle SSE connection drops
 <!--  
     ***potential issue***
 ```
@@ -251,9 +252,8 @@ Redis becomes temporarily slow due to high load
 ``` -->
 
 
-  - Reconnection strategy: implement clients handle SSE connection drops
 
 5. **DevOps Considerations**:
-  - CI/CD pipeline (dev -> staging -> prod)
-  - Infrastructure as Code (IaC) for reproducible deployments
-  - Blue/Green deployment strategy for zero-downtime updates   
+   - CI/CD pipeline (dev -> staging -> prod)
+   - Infrastructure as Code (IaC) for reproducible deployments
+   - Blue/Green deployment strategy for zero-downtime updates   
