@@ -1,4 +1,5 @@
 # Project structure
+```
 src/
 ├── config/
 │   └── database.ts
@@ -10,12 +11,14 @@ src/
 │   └── resourceRoutes.ts
 ├── types/
 │   └── index.ts
-└── app.ts
-├── Dockerfile
-├── package.json
-├── tsconfig.json
+|── app.ts
+Dockerfile
+package.json
+tsconfig.json
+ormconfig.json
+nodemon.json
 
-
+```
 # How to run
 
 A RESTful API for managing game resources built with Express, TypeScript, and SQLite.
@@ -159,7 +162,7 @@ This implementation provides a complete solution for the coding challenge with a
 
 
 
-
+<!-- 
 
 
 ## Docker Instructions
@@ -210,4 +213,4 @@ With Ingress (if configured): https://api.yourgame.com/api/resources
 
 3. **Horizontal scaling**: Note that SQLite is file-based and doesn't support multiple concurrent writers well. If you need to scale horizontally, switch to a client-server database.
 
-4. **CI/CD Pipeline**: Consider setting up a CI/CD pipeline to automatically build, test, and deploy your application.
+4. **CI/CD Pipeline**: Consider setting up a CI/CD pipeline to automatically build, test, and deploy your application. -->
